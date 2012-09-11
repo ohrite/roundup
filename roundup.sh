@@ -155,17 +155,20 @@ roundup_summarize() {
 
     while read status name
     do
+        display=$(echo $name |
+                  sed "s/it_//g" |
+                  sed "s/\_/ /g")
         case $status in
         p)
             ntests=$(expr $ntests + 1)
             passed=$(expr $passed + 1)
-            printf "  %-48s " "$name:"
+            printf "  %-48s " "$display:"
             printf "$grn[PASS]$clr\n"
             ;;
         f)
             ntests=$(expr $ntests + 1)
             failed=$(expr $failed + 1)
-            printf "  %-48s " "$name:"
+            printf "  %-48s " "$display:"
             printf "$red[FAIL]$clr\n"
             roundup_trace < "$roundup_tmp/$name"
             ;;
@@ -177,7 +180,7 @@ roundup_summarize() {
     # __Test Summary__
     #
     # Display the summary now that all tests are finished.
-    printf '=%.0s' {1..57}
+    yes = | head -n 57 | tr -d '\n'
     printf "\n"
     printf "Tests:  %3d | " $ntests
     printf "Passed: %3d | " $passed
@@ -231,8 +234,7 @@ do
 
         # We have the test plan and are in our sandbox with [roundup(5)][r5]
         # defined.  Now we source the plan to bring its tests into scope.
-        roundup_p_dir=`dirname $roundup_p`
-        . `cd $roundup_p_dir && pwd`/`basename $roundup_p`
+        . ./$roundup_p
 
         # Output the description signal
         printf "d %s" "$roundup_desc" | tr "\n" " "
