@@ -72,13 +72,13 @@ do
     esac
 done
 
-# Consider all scripts with names matching `*-test.sh` the plans to run unless
+# Consider all scripts ending in `_spec.sh` the plans to run unless
 # otherwise specified as arguments.
 if [ "$#" -gt "0" ]
 then
     roundup_plans="$@"
 else
-    roundup_plans="$(ls *-test.sh)"
+    roundup_plans="$(find spec -name *_spec.sh)"
 fi
 
 : ${color:="auto"}
