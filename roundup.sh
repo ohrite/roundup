@@ -262,8 +262,15 @@ do
                 # exit subshell with return code of last failing command. This
                 # is needed to see the return code 253 on failed assumptions.
                 # But, only do this if the error handling is activated.
+                err_trap_handler() {
+                    rc=$?
+                    set +x
+                    set -o | grep "errexit.*on" >/dev/null
+                    exit $rc
+                }
+
+                trap err_trap_handler ERR || trap err_trap_handler SIGERR
                 set -E
-                trap 'rc=$?; set +x; set -o | grep "errexit.*on" >/dev/null && exit $rc' ERR
 
                 # If `before` wasn't redefined, then this is `:`.
                 before
