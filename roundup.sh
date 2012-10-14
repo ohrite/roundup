@@ -137,10 +137,10 @@ roundup_summarize() {
     # Use colors if we are writing to a tty device.
     if (test -t 1) || (test $color = always)
     then
-        red=$(printf "\033[31m")
-        grn=$(printf "\033[32m")
-        mag=$(printf "\033[35m")
-        clr=$(printf "\033[m")
+        red=$(tput setaf 1)
+        grn=$(tput setaf 2)
+        mag=$(tput setaf 5)
+        clr=$(tput sgr0)
         cols=$(tput cols)
     fi
 
@@ -156,20 +156,18 @@ roundup_summarize() {
     while read status name
     do
         display=$(echo $name |
-                  sed "s/it_//g" |
+                  sed "s/^it_//g" |
                   sed "s/\_/ /g")
         case $status in
         p)
             ntests=$(expr $ntests + 1)
             passed=$(expr $passed + 1)
-            printf "  %-48s " "$display:"
-            printf "$grn[PASS]$clr\n"
+            printf "  %-48s\n" "$grn$display$clr"
             ;;
         f)
             ntests=$(expr $ntests + 1)
             failed=$(expr $failed + 1)
-            printf "  %-48s " "$display:"
-            printf "$red[FAIL]$clr\n"
+            printf "  %-48s\n" "$red$display$clr"
             roundup_trace < "$roundup_tmp/$name"
             ;;
         d)
@@ -227,10 +225,7 @@ do
 
         # TODO:  I want to do this with sed only.  Please send a patch if you
         # know a cleaner way.
-        roundup_plan=$(
-            grep "^it_.*()" $roundup_p           |
-            sed "s/\(it_[a-zA-Z0-9_]*\).*$/\1/g"
-        )
+        roundup_plan=$(sed -n 's/\(^[x]*it_[a-zA-Z0-9_]*\).*$/\1/p' $roundup_p)
 
         # We have the test plan and are in our sandbox with [roundup(5)][r5]
         # defined.  Now we source the plan to bring its tests into scope.
